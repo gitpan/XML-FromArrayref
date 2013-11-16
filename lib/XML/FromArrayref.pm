@@ -21,11 +21,11 @@ XML::FromArrayref - Output XML described by a Perl data structure
 
 =head1 VERSION
 
-Version 1.01
+Version 1.02
 
 =cut
 
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 
 =head1 SYNOPSIS
 
@@ -126,12 +126,12 @@ Takes a hash of XML element attributes and returns an encoded string for use in 
 
 sub attributes {
 
-	return unless my %attributes = @_;
+	return unless my @attributes = @_;
 
 	my @html;
-	for ( keys %attributes ) {
-		if ( defined $attributes{$_} ) {
-			push @html, join '', $_, '="', encode_entities( $attributes{$_}, '&<"' ), '"';
+	while ( my ($name, $value) = splice @attributes, 0, 2 ) {
+		if ( defined $value ) {
+			push @html, join '', $name, '="', encode_entities( $value, '&<"' ), '"';
 		}
 	}
 	join ' ', '', @html;
@@ -147,7 +147,6 @@ sub XMLdecl {
     my ( $version, $encoding, $standalone ) = @_;
 
     $version  ||= '1.0';
-    $encoding ||= 'UTF-8';
 
     join '', '<?xml', attributes( version => $version, encoding => $encoding, standalone => $standalone ), '?>';
 }
@@ -202,7 +201,7 @@ would print
 
 You can map any element over a list to iterate it, and by testing the value being mapped over can wrap some values in sub-elements:
 
-  print XML map [ number => [ $_ > 100 && 'large' => $_ ] ], 4, 450, 12, 44, 74, 102;
+  print XML map [ number => [ $_ > 100 && large => $_ ] ], 4, 450, 12, 44, 74, 102;
 
 would print
 
